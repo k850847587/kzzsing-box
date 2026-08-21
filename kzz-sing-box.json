@@ -1,0 +1,232 @@
+{
+  "dns": {
+    "servers": [
+      {"tag": "proxydns", "type": "udp", "server": "127.0.0.1","server_port": 20352},
+      {"tag": "local", "type": "local"},
+      {"tag": "directdns", "type": "udp", "server": "127.0.0.1" ,"server_port": 20351 },
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fd00:a4c5:9b12:d3f8:e760:00df::/96"}
+    ],
+    "rules": [
+      {"clash_mode": "Direct", "server": "directdns"},
+      {"clash_mode": "Global", "server": "proxydns"},
+      {"rule_set":"adblockfilters","action": "reject"},
+      {"rule_set":["private","microsoft-cn","apple-cn","category-media-cn","tencent","category-games-cn","douyin","bilibili","steam-cn","bing-cn","fakeip-filter"],"server":"directdns"},
+      {"rule_set":[ "prowlarr","tmdb"],"server":"proxydns"},
+      {"query_type": ["A", "AAAA"],"rule_set":[ "ai","google", "media","youtube","games-global","apple", "netflix","telegram","disney", "docker","steam", "tiktok","twitter","twitch", "github","cloudflare","microsoft", "proxy"],"server": "fakeip"},
+      {"rule_set": "cn","server": "directdns"},
+      {"type": "logical","mode": "and","rules": [
+          {"rule_set": [ "ai","google", "media","youtube","games-global","apple", "netflix","telegram","disney", "docker","steam", "tiktok","twitter","twitch", "github","cloudflare","microsoft", "proxy"],"invert": true},
+          {"rule_set": "cn_ip"}
+        ],"server": "directdns"},
+
+      {"query_type": ["A", "AAAA"],"server": "fakeip"}
+
+      
+
+    ],
+    "final": "proxydns",
+    "strategy": "prefer_ipv4",
+    "disable_cache" : true,
+    "reverse_mapping": true
+  },
+  "outbounds": [
+  {"tag":"默认代理","type":"selector","outbounds":["机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"代理DNS","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"漏网之鱼","type":"selector","outbounds":["默认代理","直连","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Ai","type":"selector","outbounds":["默认代理","机场AI-自动","机场AI-手动","机场1-自动","机场2-自动"]},
+{"tag":"Github","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Download","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Steam","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Youtube","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Google","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Cloudflare","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Microsoft","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Media","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Telegram","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"Apple","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","直连","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"PROWLARR","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+{"tag":"ARR","type":"selector","outbounds":["默认代理","机场1-自动","机场2-自动","机场3-自动","机场1-手动","机场2-手动","机场3-手动"]},
+
+{"tag":"机场1-自动","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"30s","tolerance":30},
+{"tag":"机场2-自动","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"30m","tolerance":100},
+{"tag":"机场3-自动","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"30m","tolerance":100},
+{"tag":"机场AI-自动","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"10m","tolerance":50},
+{"tag":"机场1-手动","type":"selector","outbounds":[]},
+{"tag":"机场2-手动","type":"selector","outbounds":[]},
+{"tag":"机场3-手动","type":"selector","outbounds":[]},
+{"tag":"机场AI-手动","type":"selector","outbounds":[]},
+{"tag":"直连","type":"direct","domain_resolver":"directdns"},
+{"tag":"GLOBAL","type":"selector","outbounds":["默认代理","Ai","代理DNS","Youtube","Google","Download","Github","Telegram","Steam","Cloudflare","Microsoft","Media","Apple","PROWLARR","ARR","漏网之鱼","机场1-自动","机场2-自动","机场3-自动","机场AI-自动","机场1-手动","机场2-手动","机场3-手动","机场AI-手动","直连"]}
+  ],
+  "route": {
+    "rules": [
+      {"type": "logical", "mode": "or", "rules": [{"port": 53},{"inbound": "dns-in"}], "action": "hijack-dns"},
+      {"type": "logical", "mode": "or", "rules": [{"rule_set":["adblockfilters","outdns","indns","telegram_ip","apple_ip","google_ip","netflix_ip"]}], "invert": true, "action": "sniff", "sniffer": ["http", "tls", "quic", "dns"], "timeout": "500ms"},
+      {"type": "logical", "mode": "or", "rules": [{"protocol": ["stun", "quic"]},{"rule_set": "adblockfilters"}], "action": "reject"},
+      {"network": "icmp", "outbound": "直连"},
+      {"ip_is_private": true, "outbound": "直连"},
+      {"clash_mode": "Direct", "outbound": "直连"},
+      {"clash_mode": "Global", "outbound": "GLOBAL"},
+      {"domain_suffix": ["fnnas.com", "fnconnect.cn", "kongzhenzhou.xyz"], "outbound": "直连"},
+      {"rule_set": "outdns", "outbound": "代理DNS"},
+      {"rule_set": "indns", "outbound": "直连"},
+      {"rule_set": "private", "outbound": "直连"},
+      {"rule_set": "douyin", "outbound": "直连"},
+      {"rule_set": "bilibili", "outbound": "直连"},
+      {"rule_set": "tencent", "outbound": "直连"},
+      {"rule_set": "steam-cn", "outbound": "直连"},
+      {"rule_set": "bing-cn", "outbound": "直连"},
+      {"rule_set": "microsoft-cn", "outbound": "直连"},
+      {"rule_set": "apple-cn", "outbound": "直连"},
+      {"rule_set": "category-media-cn", "outbound": "直连"},
+      {"rule_set": "category-games-cn", "outbound": "直连"},
+      {"rule_set": "bilibili_ip", "outbound": "直连"},
+      {"rule_set": "apple", "outbound": "Apple"}, 
+      {"rule_set": "ai", "outbound": "Ai"},
+      {"rule_set": "github", "outbound": "Github"},
+      {"rule_set": "steam", "outbound": "Steam"},
+      {"rule_set": "games-global", "outbound": "Steam"},
+      {"rule_set": "docker", "outbound": "Download"},
+      {"rule_set": "youtube", "outbound": "Youtube"},
+      {"rule_set": "google", "outbound": "Google"},
+      {"rule_set": "cloudflare", "outbound": "Cloudflare"},
+      {"rule_set": "microsoft", "outbound": "Microsoft"},
+      {"rule_set": "netflix", "outbound": "Media"},
+      {"rule_set": "disney", "outbound": "Media"},
+      {"rule_set": "tiktok", "outbound": "Media"},
+      {"rule_set": "twitch", "outbound": "Media"},
+      {"rule_set": "media", "outbound": "Media"},
+      {"rule_set": "proxy", "outbound": "默认代理"},
+      {"rule_set": "twitter", "outbound": "默认代理"},
+      {"rule_set": "telegram", "outbound": "Telegram"},
+      {"rule_set": "telegram_ip", "outbound": "Telegram"},
+      {"rule_set": "apple_ip", "outbound": "Apple"},
+      {"rule_set": "google_ip", "outbound": "Google"},
+      {"rule_set": "netflix_ip", "outbound": "Media"},
+      {"rule_set": "prowlarr", "outbound": "PROWLARR"},
+      {"rule_set": "tmdb", "outbound": "ARR"},
+      {"port_range": "5228:5230", "outbound": "直连"},
+      {"rule_set": "gfw", "outbound": "默认代理"},
+      {"rule_set": "cn", "outbound": "直连"},
+      {"rule_set": "cn_ip", "outbound": "直连"}
+
+    ],
+    "rule_set": [
+       {"tag": "ai", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/category-ai-!cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "google", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/google.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "media", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/category-media.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo-lite/geosite/proxy.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "youtube", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/youtube.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "games-global", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/category-games-!cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "apple", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/apple.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "netflix", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/netflix.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "telegram", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/telegram.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "disney", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/disney.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "docker", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/docker.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "steam", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/steam.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "tiktok", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/tiktok.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "twitter", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/twitter.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "twitch", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/twitch.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "github", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/github.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "cloudflare", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/cloudflare.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "microsoft", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/microsoft.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "geolocation-nocn", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/geolocation-!cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "telegram_ip", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/telegram.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "apple_ip", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo-lite/geoip/apple.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "google_ip", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/google.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "netflix_ip", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/netflix.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "private", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/private.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "microsoft-cn", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/microsoft@cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "apple-cn", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/apple-cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "category-media-cn", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/category-media-cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "tencent", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/tencent.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "category-games-cn", "type": "remote", "format": "binary", "url": "https://github.com/DustinWin/ruleset_geodata/raw/refs/heads/sing-box-ruleset/games-cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "douyin", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/douyin.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "bilibili", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/bilibili.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "cn", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "steam-cn", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/steam@cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "bing-cn", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/bing@cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "fakeip-filter", "type": "remote", "format": "binary", "url": "https://github.com/DustinWin/ruleset_geodata/raw/refs/heads/sing-box-ruleset/fakeip-filter.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "gfw", "type": "remote", "format": "binary", "url": "https://github.com/DustinWin/ruleset_geodata/raw/refs/heads/sing-box-ruleset/gfw.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "cn_ip", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/cn.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "bilibili_ip", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo-lite/geoip/bilibili.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "adblockfilters", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblocksingbox.srs", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "prowlarr", "type": "remote", "format": "source", "url": "https://github.com/k850847587/arrrules/raw/refs/heads/main/sing-box/prowlarr.json", "download_detour": "默认代理","update_interval":"1d"},
+  {"tag": "tmdb", "type": "remote", "format": "source", "url": "https://github.com/k850847587/arrrules/raw/refs/heads/main/sing-box/tmdb.json", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "outdns", "type": "remote", "format": "source", "url": "https://github.com/k850847587/arrrules/raw/refs/heads/main/sing-box/outdns.json", "download_detour": "默认代理","update_interval":"10d"},
+  {"tag": "indns", "type": "remote", "format": "source", "url": "https://github.com/k850847587/arrrules/raw/refs/heads/main/sing-box/indns.json", "download_detour": "默认代理","update_interval":"10d"}
+    ],
+    "final": "漏网之鱼",
+    "auto_detect_interface": true,
+    "default_domain_resolver": {"server": "proxydns"}
+  },
+  "inbounds": [
+    {
+      "tag": "dns-in",
+      "type": "direct",
+      "listen": "::",
+      "listen_port": 1053
+    },
+    {
+      "tag": "http-in",
+      "type": "http",
+      "listen": "::",
+      "listen_port": 8080
+    },
+    {
+      "tag": "socks-in",
+      "type": "socks",
+      "listen": "::",
+      "listen_port": 1080
+    },
+    {
+      "tag": "redirect-in",
+      "type": "redirect",
+      "listen": "::",
+      "listen_port": 7890
+    },
+    {
+      "tag": "tproxy-in",
+      "type": "tproxy",
+      "listen": "::",
+      "listen_port": 7891
+    },
+    {
+      "tag": "tun-in",
+      "type": "tun",
+      "interface_name": "momo",
+      "address": [
+        "172.31.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "auto_route": false,
+      "auto_redirect": false
+    }
+  ],
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "./cache.db",
+      "store_fakeip": true
+    },
+    "clash_api": {
+      "external_controller": "[::]:9095",
+      "external_ui": "ui",
+      "external_ui_download_url": "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-cdn-fonts.zip",
+      "external_ui_download_detour": "默认代理",
+      "secret": "123.0321",
+      "default_mode": "Rule"
+    }
+  },
+
+  "ntp": {
+    "enabled": true,
+    "server": "time.apple.com",
+    "interval": "30m"
+  },
+  "log": {
+    "disabled": false,
+    "level": "info",
+    "timestamp": true
+  }
+}
