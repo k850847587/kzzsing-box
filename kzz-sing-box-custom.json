@@ -1,0 +1,304 @@
+{
+  "dns": {
+    "servers": [
+      {"tag": "directdns", "type": "quic", "server": "223.5.5.5","server_port": 853,"client_subnet": "119.112.0.0/16"},
+      {"tag": "local", "type": "local"},
+      {"tag": "proxydns", "type": "https", "server": "8.8.8.8" ,"server_port": 443 ,"path":"/dns-query","detour": "默认代理",},
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "7.0.0.0/8"},
+      {"tag": "dns-proxy", "type": "udp", "server": "192.168.11.110","server_port":11153}
+    ],
+    "rules": [
+      {"query_type": ["HTTPS", "SVCB"], "action": "reject"},
+      {"clash_mode": "Direct", "server": "directdns"},
+      {"clash_mode": "Global", "server": "proxydns"},
+      {"rule_set":["adblockfilters","adblockfilters2"],"action": "reject"},
+      
+      {"rule_set":["private","fnnas","microsoft-cn","apple-cn","category-media-cn","tencent",
+      "category-games-cn","douyin","bilibili","steam-cn","bing-cn",
+      "jd","alibaba","xiaohongshu","sina","pinduoduo","xptv",
+      "amd","nvidia","asus","other-direct",
+      "fakeip-filter"],"server":"directdns"},
+      {"query_type": ["A", "AAAA"],"rule_set":[ "ai","google","youtube","games-global","apple","telegram",
+      "category-finance","paypal","stripe","category-cryptocurrency","reddit","streaming","SocialMedia","arr",
+      "other-proxy",
+       "docker","steam","twitch", "github","cloudflare","microsoft","download"],"server": "fakeip"},
+      {"rule_set": "cn","server": "directdns"},
+      {"rule_set": ["gfw", "proxy"],"server": "fakeip"},
+      {"query_type": ["A", "AAAA"],"server": "fakeip"}
+    ],
+    "final": "proxydns",
+    "strategy": "prefer_ipv4",
+    "independent_cache": true,
+    "cache_capacity": 8192,
+    "reverse_mapping": true
+  },
+  "outbounds": [
+      {"tag":"默认代理","type":"selector","outbounds":["机场1-选择","直连","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+  {"tag":"机场1-选择","type":"urltest","outbounds":["机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国"],"url":"http://www.google.com/generate_204","interval":"20m","tolerance":100},
+{"tag":"机场2-选择","type":"urltest","outbounds":["机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"],"url":"http://www.google.com/generate_204","interval":"20m","tolerance":100},
+{"tag":"🤖 机场AI-选择","type":"selector","outbounds":["机场AI-新加坡","机场AI-香港","机场AI-台湾","机场AI-日本","机场AI-美国"]},
+{"tag":"🕸️ 漏网之鱼","type":"selector","outbounds":["默认代理","直连","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"🤖 Ai","type":"selector","outbounds":["🤖 机场AI-选择","默认代理","机场AI-香港","机场AI-台湾","机场AI-新加坡","机场AI-日本","机场AI-美国","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国"]},
+{"tag":"🐙 Github","type":"selector","outbounds":["默认代理","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"⬇️ 下载相关","type":"selector","outbounds":["默认代理","直连","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"🎮 游戏平台","type":"selector","outbounds":["默认代理","直连","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"📺 Youtube","type":"selector","outbounds":["默认代理","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"🇬 Google","type":"selector","outbounds":["默认代理","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"☁️ Cloudflare","type":"selector","outbounds":["默认代理","直连","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"🪟 Microsoft","type":"selector","outbounds":["默认代理","直连","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"🎬 海外媒体","type":"selector","outbounds":["默认代理","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"💬 社交平台","type":"selector","outbounds":["默认代理","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"🍎 Apple","type":"selector","outbounds":["默认代理","直连","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国","直连"]},
+{"tag":"🛡️ Safe","type":"selector","outbounds":["默认代理","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+{"tag":"ARR","type":"selector","outbounds":["默认代理","机场1-选择","机场2-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国"]},
+
+
+
+{"tag":"机场1-香港","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":50},
+{"tag":"机场1-台湾","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":50},
+{"tag":"机场1-新加坡","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":50},
+{"tag":"机场1-日本","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":50},
+{"tag":"机场1-美国","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":50},
+
+{"tag":"机场2-香港","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50},
+{"tag":"机场2-台湾","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50},
+{"tag":"机场2-新加坡","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50},
+{"tag":"机场2-日本","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50},
+{"tag":"机场2-美国","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50},
+
+{"tag":"机场AI-香港","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50},
+{"tag":"机场AI-台湾","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50},
+{"tag":"机场AI-新加坡","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50},
+{"tag":"机场AI-日本","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50},
+{"tag":"机场AI-美国","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50},
+
+
+{"tag":"直连","type":"direct","domain_resolver":"directdns"},
+{"tag":"GLOBAL","type":"selector","outbounds":["默认代理","🕸️ 漏网之鱼","🤖 Ai","🐙 Github","⬇️ 下载相关","🎮 游戏平台","📺 Youtube","🇬 Google","☁️ Cloudflare","🪟 Microsoft","🎬 海外媒体","💬 社交平台","🍎 Apple","🛡️ Safe","ARR","机场1-选择","机场2-选择","🤖 机场AI-选择","机场1-香港","机场1-台湾","机场1-新加坡","机场1-日本","机场1-美国","机场2-香港","机场2-台湾","机场2-新加坡","机场2-日本","机场2-美国","机场AI-香港","机场AI-台湾","机场AI-新加坡","机场AI-日本","机场AI-美国","直连"]}
+
+  ],
+  "route": {
+    "rules": [
+      {"type":"logical","mode":"or","rules":[{"domain_suffix":"push.apple.com"},{"rule_set":["SocialMedia_ip","google_ip","streaming_ip","telegram_ip","apple_ip","bilibili_ip"]}],
+        "invert":true,"action":"sniff","sniffer":["http","tls","quic","dns"],"timeout":"500ms"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
+      {"ip_is_private": true, "outbound": "直连"},
+      {"type":"logical","mode":"or","rules":[{"port":853},{"protocol":["stun","quic"]},{"rule_set":["adblockfilters","adblockfilters2"]}],"action":"reject","no_drop":true},
+      {"network": "icmp", "outbound": "直连"},
+      {"ip_is_private": true, "outbound": "直连"},
+      {"clash_mode": "Direct", "outbound": "直连"},
+      {"clash_mode": "Global", "outbound": "GLOBAL"},
+      
+
+      {"rule_set": "fnnas", "outbound": "直连"},
+      {"rule_set": "private", "outbound": "直连"},
+      {"rule_set": "private_ip", "outbound": "直连"},
+      {"rule_set": "douyin", "outbound": "直连"},
+      {"rule_set": "bilibili", "outbound": "直连"},
+      {"rule_set": "tencent", "outbound": "直连"},
+      {"rule_set": "alibaba", "outbound": "直连"},
+      {"rule_set": "jd", "outbound": "直连"},
+      {"rule_set": "xiaohongshu", "outbound": "直连"},
+      {"rule_set": "pinduoduo", "outbound": "直连"},
+      {"rule_set": "sina", "outbound": "直连"},
+      {"rule_set": "steam-cn", "outbound": "直连"},
+      {"rule_set": "bing-cn", "outbound": "直连"},
+      {"rule_set": "microsoft-cn", "outbound": "直连"},
+      {"rule_set": "apple-cn", "outbound": "直连"},
+      {"rule_set": "xptv", "outbound": "直连"},
+      {"rule_set": "amd", "outbound": "直连"},
+      {"rule_set": "nvidia", "outbound": "直连"},
+      {"rule_set": "asus", "outbound": "直连"},
+      {"rule_set": "other-direct", "outbound": "直连"},
+
+
+      {"rule_set": "category-media-cn", "outbound": "直连"},
+      {"rule_set": "category-games-cn", "outbound": "直连"},
+      {"type": "logical", "mode": "and", "rules": [{"port": [53, 853], "invert": true},
+                                                   {"clash_mode": "Global", "invert": true},
+                                                   {"type": "logical", "mode": "or", "rules": [{"ip_is_private": true}, {"rule_set": "cn_ip"}, {"rule_set": "cn"}]}], "action": "bypass"},
+      {"rule_set": "docker", "outbound": "⬇️ 下载相关"},
+      {"rule_set": "download", "outbound": "⬇️ 下载相关"},
+      {"rule_set": "apple", "outbound": "🍎 Apple"}, 
+      {"rule_set": "ai", "outbound": "🤖 Ai"},
+      {"rule_set": "github", "outbound": "🐙 Github"},
+      {"rule_set": "steam", "outbound": "🎮 游戏平台"},
+      {"rule_set": "games-global", "outbound": "🎮 游戏平台"},
+      {"rule_set": "youtube", "outbound": "📺 Youtube"},
+      {"rule_set": "google", "outbound": "🇬 Google"},
+      {"rule_set": "cloudflare", "outbound": "☁️ Cloudflare"},
+      {"rule_set": "microsoft", "outbound": "🪟 Microsoft"},
+      {"rule_set": "twitch", "outbound": "🎬 海外媒体"},
+      {"rule_set": "telegram", "outbound": "💬 社交平台"},
+      {"rule_set": "category-finance", "outbound": "🛡️ Safe"},
+      {"rule_set": "paypal", "outbound": "🛡️ Safe"},
+      {"rule_set": "stripe", "outbound": "🛡️ Safe"},
+      {"rule_set": "category-cryptocurrency", "outbound": "🛡️ Safe"},
+      {"rule_set": "reddit", "outbound": "🛡️ Safe"},
+      {"rule_set": "streaming", "outbound": "🎬 海外媒体"},
+      {"rule_set": "SocialMedia", "outbound": "💬 社交平台"},
+      {"rule_set": "arr", "outbound": "ARR"},
+      {"rule_set": "other-proxy", "outbound": "默认代理"}, 
+
+      {"rule_set": "apple_ip", "outbound": "🍎 Apple"},
+      {"rule_set": "google_ip", "outbound": "🇬 Google"},
+      {"rule_set": "SocialMedia_ip", "outbound": "💬 社交平台"},
+      {"rule_set": "streaming_ip", "outbound": "🎬 海外媒体"},
+
+      {"rule_set": "xptv_ip", "outbound": "直连"},
+      {"rule_set": "bilibili_ip", "outbound": "直连"},
+      {"rule_set": "telegram_ip", "outbound": "💬 社交平台"},
+      {"rule_set": "ai_ip", "outbound": "🤖 Ai"},
+      {"rule_set": "cloudflare_ip", "outbound": "☁️ Cloudflare"},
+      {"rule_set": "proxy", "outbound": "默认代理"},
+      {"rule_set": "gfw", "outbound": "默认代理"},
+      {"rule_set": "cn", "outbound": "直连"},
+      {"rule_set": "cn_ip", "outbound": "直连"}
+
+    ],
+    "rule_set": [
+{"tag": "adblockfilters", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblocksingbox.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "adblockfilters2", "type": "remote", "format": "source", "url": "https://ghproxy.net/https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox-No.Privacy.json", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "private", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/private.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "private_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geoip/private.srs", "http_client": "rule-download", "update_interval": "10d"},
+
+{"tag": "douyin", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/douyin.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "bilibili", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/bilibili.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "tencent", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/tencent.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "steam-cn", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/steam@cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "bing-cn", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/bing@cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "microsoft-cn", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/microsoft@cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "apple-cn", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/apple-cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/apple.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "jd", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/jd.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "alibaba", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/alibaba.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "xiaohongshu", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/xiaohongshu.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "sina", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/sina.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "pinduoduo", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/pinduoduo.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "category-games-cn", "type": "remote", "format": "binary", "url": "https://github.com/DustinWin/ruleset_geodata/raw/refs/heads/sing-box-ruleset/games-cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "category-media-cn", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/category-media-cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "xptv", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/domain/XPTV.srs", "http_client": "rule-download", "update_interval": "10d"},
+
+
+{"tag": "google", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/google.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "ai", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/category-ai-!cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "youtube", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/youtube.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "cloudflare", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/cloudflare.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "telegram", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/telegram.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "github", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/github.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "microsoft", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/microsoft.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "steam", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/steam.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "games-global", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/category-games-!cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "category-finance", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/category-finance.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "paypal", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/paypal.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "stripe", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/stripe.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "category-cryptocurrency", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/category-cryptocurrency.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "reddit", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/reddit.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "docker", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/docker.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "twitch", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/twitch.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "streaming", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/domain/Streaming.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "SocialMedia", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/domain/SocialMedia.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "SocialMedia_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/ip/SocialMedia.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "google_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geoip/google.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo-lite/geosite/proxy.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "gfw", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/gfw.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "arr", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/k850847587/arrrules/refs/heads/main/srs/arr.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "streaming_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/ip/Streaming.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "telegram_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geoip/telegram.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "apple_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo-lite/geoip/apple.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "ai_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/AI.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "cloudflare_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geoip/cloudflare.srs", "http_client": "rule-download", "update_interval": "10d"},
+
+{"tag": "fakeip-filter", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/DustinWin/ruleset_geodata/refs/heads/sing-box-ruleset/fakeip-filter.srs", "http_client": "rule-download", "update_interval": "10d"},
+
+{"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "cn_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geoip/cn.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "bilibili_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo-lite/geoip/bilibili.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "xptv_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/ip/XPTV.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "fnnas", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/k850847587/arrrules/refs/heads/main/srs/fnnas.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "download", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/k850847587/arrrules/refs/heads/main/srs/download.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "amd", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/amd.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "nvidia", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/nvidia.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "asus", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/asus.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "other-direct", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/k850847587/arrrules/refs/heads/main/srs/other@direct.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "other-proxy", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/k850847587/arrrules/refs/heads/main/srs/other@proxy.srs", "http_client": "rule-download", "update_interval": "10d"}
+
+
+    ],
+    "final": "🕸️ 漏网之鱼",
+    "auto_detect_interface": true,
+    "default_domain_resolver": {"server": "proxydns"}
+  },
+  "inbounds": [
+    {
+      "tag": "dns-in",
+      "type": "direct",
+      "listen": "::",
+      "listen_port": 53
+    },
+    {
+      "tag": "http-in",
+      "type": "http",
+      "listen": "::",
+      "listen_port": 1080
+    },
+    {
+      "tag": "socks-in",
+      "type": "socks",
+      "listen": "::",
+      "listen_port": 1081
+    },
+    {
+      "tag": "redirect-in",
+      "type": "redirect",
+      "listen": "::",
+      "listen_port": 7890
+    },
+    {
+      "tag": "tproxy-in",
+      "type": "tproxy",
+      "listen": "::",
+      "listen_port": 7893
+    },
+    {
+      "tag": "tun-in",
+      "type": "tun",
+      "interface_name": "momo",
+      "address": [
+        "172.31.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "auto_route": true,
+      "auto_redirect": true,
+      "strict_route": true,
+      "stack": "mixed"
+    }
+  ],
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "./rule/cache.db",
+      "store_fakeip": true
+    },
+    "clash_api": {
+      "external_controller": "[::]:9090",
+      "external_ui": "ui",
+      "external_ui_download_url": "https://ghproxy.net/https://github.com/Zephyruso/zashboard/releases/download/v3.21.0/dist-cdn-fonts.zip",
+      "external_ui_download_detour": "直连",
+      "secret": "123.0321",
+      "default_mode": "Rule"
+    }
+  },
+
+  "ntp": {
+    "enabled": true,
+    "server": "time.apple.com",
+    "interval": "30m"
+  },
+  "log": {
+    "disabled": false,
+    "level": "info",
+    "timestamp": true
+  },
+  "http_clients": [ { "tag": "rule-download", "detour": "直连" } ]
+}
