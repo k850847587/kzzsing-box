@@ -2,25 +2,28 @@
     "$schema": "https://ghproxy.net/https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing-next/docs/schema.json",
     "providers": [
     {
-      "type": "remote","tag": "link1","health_check": {"enabled": false},
+      "type": "remote","tag": "link1",
       "url": "",
       "path": "./providers/link1.json","http_client": "provider-download", "update_interval": "6h",
+      "health_check": {"enabled":true,"url":"http://www.google.com/generate_204","interval":"5m"},
       "override_dialer": {"detour":"直连","udp_fragment": false,"tcp_fast_open":true,"tcp_multi_path": false,
-      "domain_resolver":"dns-proxy","tcp_keep_alive":"5m","tcp_keep_alive_interval":"75s","tcp_keep_alive_count":0,"disable_tcp_keep_alive":false}
+      "domain_resolver":"dns-proxy","disable_tcp_keep_alive":false}
     },
     {
-      "type": "remote","tag": "link2","health_check": {"enabled": false},
+      "type": "remote","tag": "link2",
       "url": "",
       "path": "./providers/link2.json","http_client": "provider-download", "update_interval": "6h",
+      "health_check": {"enabled":true,"url":"http://www.google.com/generate_204","interval":"10m"},
       "override_dialer": {"detour":"直连","udp_fragment": false,"tcp_fast_open":true,"tcp_multi_path": false,
-      "domain_resolver":"dns-proxy","tcp_keep_alive":"5m","tcp_keep_alive_interval":"75s","tcp_keep_alive_count":0,"disable_tcp_keep_alive":false}
+      "domain_resolver":"directdns-ali","tcp_keep_alive":"10m","tcp_keep_alive_interval":"15s","tcp_keep_alive_count":0,"disable_tcp_keep_alive":false}
     },
     {
-      "type": "remote","tag": "link3","health_check": {"enabled": false},
+      "type": "remote","tag": "link3",
       "url": "",
       "path": "./providers/link3.json","http_client": "provider-download", "update_interval": "6h", 
+      "health_check": {"enabled":true,"url":"http://www.google.com/generate_204","interval":"1h"},
       "override_dialer": {"detour":"直连","udp_fragment": false,"tcp_fast_open":true,"tcp_multi_path": false,
-      "domain_resolver":"dns-proxy","tcp_keep_alive":"5m","tcp_keep_alive_interval":"75s","tcp_keep_alive_count":0,"disable_tcp_keep_alive":false}
+      "domain_resolver":"directdns-ali","tcp_keep_alive":"10m","tcp_keep_alive_interval":"15s","tcp_keep_alive_count":0,"disable_tcp_keep_alive":false}
     }
   ],
   "dns": {
@@ -43,97 +46,100 @@
       }
     ],
     "rules": [
-        
+      { "preferred_by": [ "hosts" ], "server": "hosts" },  
       {"query_type": ["HTTPS", "SVCB"], "action": "reject"},
-      {"clash_mode": "Direct", "server": "directdns" ,"client_subnet": "119.112.0.0/16"},
+      {"clash_mode": "Direct", "server": "directdns" ,"client_subnet": "202.96.64.0/24"},
       {"clash_mode": "Global", "server": "proxydns"},
       {"rule_set":["adblockfilters","adblockfilters2"],"action": "reject"},
-       {"query_type": ["A", "AAAA"],"rule_set":[ "ai","google","youtube","games-global","apple","telegram",
-      "category-finance","paypal","stripe","category-cryptocurrency","reddit","streaming","SocialMedia","arr",
-      "other-proxy",
-       "docker","steam","twitch", "github","cloudflare","microsoft","download"],"server": "fakeip"},
-        
+      
       {"rule_set":["private","fnnas","microsoft-cn","apple-cn","category-media-cn","tencent",
       "category-games-cn","douyin","bilibili","steam-cn","bing-cn",
       "jd","alibaba","xiaohongshu","sina","pinduoduo","xptv",
       "amd","nvidia","asus","other-direct",
-      "fakeip-filter"],"server":"directdns", "client_subnet": "119.112.0.0/16"},
-     
-      {"rule_set": "cn","server": "directdns"},
+      "fakeip-filter"],"server":"directdns", "client_subnet": "202.96.64.0/24"},
+       {"query_type": ["A", "AAAA"],"rule_set":[ "ai","google","youtube","games-global","apple","telegram",
+      "category-finance","paypal","stripe","category-cryptocurrency","reddit","streaming","SocialMedia","arr",
+      "other-proxy","tiktok",
+       "docker","steam","twitch", "github","cloudflare","microsoft","download"],"server": "fakeip"},
+        
+      {"rule_set": "cn","server": "directdns", "client_subnet": "202.96.64.0/24"},
       {"rule_set": ["gfw", "proxy"],"server": "fakeip"},
+      {"action": "evaluate", "server": "proxydns", "client_subnet": "202.96.64.0/24" },
+      {"match_response": true, "rule_set": [ "cn_ip" ], "action": "respond" },
       {"query_type": ["A", "AAAA"],"server": "fakeip"}
     ],
-    "final": "directdns",
+    "final": "proxydns",
     "strategy": "prefer_ipv4",
     "cache_capacity": 8192,
     "reverse_mapping": true
   },
   "outbounds": [
-      {"tag":"默认代理","type":"selector","outbounds":["故转|最低延迟","直连","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-  {"tag":"故转|最低延迟","type":"urltest","outbounds":["香港|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","台湾|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"],"url":"http://www.google.com/generate_204"
-      ,"interval":"200s","tolerance":1
-  ,"fallback": {"enabled": true,"max_delay": "300ms"}
+      {"tag":"默认代理","type":"selector","outbounds":["香港|负载均衡¹","新加坡|负载均衡¹","故转|最低延迟","香港策略","新加坡策略","台湾策略","日本策略","美国策略","备用|最低延迟","直连"]},
+  {"tag":"故转|最低延迟","type":"urltest","outbounds":["香港策略","新加坡策略","台湾策略","日本策略","美国策略","备用|最低延迟"],"url":"http://www.google.com/generate_204"
+      ,"interval":"200s","idle_timeout":"20m"
+  ,"fallback": {"enabled": true,"max_delay": "400ms"}
   },
-{"tag":"🤖 机场AI-选择","type":"urltest","outbounds":["AI|新加坡延迟¹","AI|美国延迟¹","AI|香港延迟¹","AI|台湾延迟¹","AI|日本延迟¹",
-                                                      "AI|新加坡延迟²","AI|美国延迟²","AI|香港延迟²","AI|台湾延迟²","AI|日本延迟²"]
-    ,"interval":"200s","tolerance":1
-,"fallback": {"enabled": true,"max_delay": "300ms"}
+{"tag":"AI|故障转移","type":"urltest","outbounds":["AI|新加坡延迟","AI|美国延迟","AI|香港延迟","AI|台湾延迟","AI|日本延迟","备用|最低延迟" ]
+    ,"interval":"200s","idle_timeout":"20m"
+,"fallback": {"enabled": true,"max_delay": "500ms"}
 },
-{"tag":"🐟 漏网之鱼","type":"selector","outbounds":["默认代理","直连","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"🤖 Ai","type":"selector","outbounds":["🤖 机场AI-选择","默认代理","AI|新加坡延迟¹","AI|美国延迟¹","AI|香港延迟¹","AI|台湾延迟¹","AI|日本延迟¹",
-                                                      "AI|新加坡延迟²","AI|美国延迟²","AI|香港延迟²","AI|台湾延迟²","AI|日本延迟²"]},
-{"tag":"🐙 Github","type":"selector","outbounds":["默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"⬇️ 下载相关","type":"selector","outbounds":["默认代理","直连","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"🎮 游戏平台","type":"selector","outbounds":["默认代理","直连","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"📺 Youtube","type":"selector","outbounds":["默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"🇬 Google","type":"selector","outbounds":["默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"☁️ Cloudflare","type":"selector","outbounds":["默认代理","直连","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"🪟 Microsoft","type":"selector","outbounds":["直连","默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"🎬 海外媒体","type":"selector","outbounds":["默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"💬 社交平台","type":"selector","outbounds":["默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"🍎 Apple","type":"selector","outbounds":["直连","默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²","直连"]},
-{"tag":"🛡️ Safe","type":"selector","outbounds":["默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
-{"tag":"🕸️ ARR","type":"selector","outbounds":["默认代理","故转|最低延迟","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²"]},
+{"tag":"漏网之鱼","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"国外AI","type":"selector","outbounds":["AI|故障转移","默认代理","AI|新加坡延迟","AI|美国延迟","AI|香港延迟","AI|台湾延迟","AI|日本延迟"]},
+{"tag":"GITHUB","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"下载相关","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"游戏平台","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"YOUTUBE","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"GOOGLE","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"CLOUDFLARE","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"MICROSOFT","type":"selector","outbounds":["直连","默认代理","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"TIKTOK","type":"selector","outbounds":["新加坡策略","默认代理","台湾策略","日本策略","美国策略","备用|最低延迟"]},      
+{"tag":"海外媒体","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"社交平台","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"APPLE","type":"selector","outbounds":["直连","默认代理","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"风控安全","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
+{"tag":"ARR","type":"selector","outbounds":["默认代理","直连","香港策略","台湾策略","新加坡策略","日本策略","美国策略","备用|最低延迟"]},
 
 
+{"tag":"台湾策略","type":"urltest","outbounds":["台湾|最低延迟¹","台湾|最低延迟²"],"url":"http://www.google.com/generate_204","interval":"300s","idle_timeout":"30m","fallback": {"enabled": true,"max_delay": "300ms"}},
+{"tag":"日本策略","type":"urltest","outbounds":["日本|最低延迟¹","日本|最低延迟²"],"url":"http://www.google.com/generate_204","interval":"300s","idle_timeout":"30m","fallback": {"enabled": true,"max_delay": "300ms"}},
+{"tag":"美国策略","type":"urltest","outbounds":["美国|最低延迟¹","美国|最低延迟²"],"url":"http://www.google.com/generate_204","interval":"300s","idle_timeout":"30m","fallback": {"enabled": true,"max_delay": "400ms"}},
+      
+{"tag":"香港策略","type":"urltest","outbounds":["香港|最低延迟¹","香港|最低延迟²"],"url":"http://www.google.com/generate_204","interval":"300s","idle_timeout":"30m","fallback": {"enabled": true,"max_delay": "300ms"}},
+{"tag":"新加坡策略","type":"urltest","outbounds":["新加坡|最低延迟¹","新加坡|最低延迟²"],"url":"http://www.google.com/generate_204","interval":"300s","idle_timeout":"30m","fallback": {"enabled": true,"max_delay": "300ms"}},
 
+{"tag":"香港|负载均衡¹","type":"loadbalance","strategy": "consistent-hashing","providers": ["link1"],"url":"http://www.google.com/generate_204","interval":"200s","include":"(?i)🇭🇰|香港|\bHK\b|\bhong\\s?kong\b","idle_timeout":"30m"},
+{"tag":"新加坡|负载均衡¹","type":"loadbalance","strategy": "consistent-hashing","providers": ["link1"],"url":"http://www.google.com/generate_204","interval":"200s","include":"(?i)🇸🇬|新加坡|\bSG\b|\bSingapore\b","idle_timeout":"30m"},
+ 
+{"tag":"香港|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":30,"providers": ["link1"],"idle_timeout":"30m","include":"(?i)🇭🇰|香港|\bHK\b|\bhong\\s?kong\b"},
+{"tag":"台湾|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":30,"providers": ["link1"],"idle_timeout":"30m","include":"(?i)🇹🇼|台湾|\bTW\b|\bTaiwan\b"},
+{"tag":"新加坡|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":30,"providers": ["link1"],"idle_timeout":"30m","include":"(?i)🇸🇬|新加坡|\bSG\b|\bSingapore\b"},
+{"tag":"日本|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":30,"providers": ["link1"],"idle_timeout":"30m","include":"(?i)🇯🇵|日本|\bJP\b|\bJapan\b"},
+{"tag":"美国|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":30,"providers": ["link1"],"idle_timeout":"30m","include":"(?i)🇺🇸|美国|\bUS\b|\bUSA\b|\bUnited\\s?States\b"},
+      
 
-{"tag":"香港|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":5,"providers": ["link1"],"include":"(?i)🇭🇰|香港|\bHK\b|\bhong\\s?kong\b"},
-{"tag":"台湾|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":5,"providers": ["link1"],"include":"(?i)🇹🇼|台湾|\bTW\b|\bTaiwan\b"},
-{"tag":"新加坡|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":5,"providers": ["link1"],"include":"(?i)🇸🇬|新加坡|\bSG\b|\bSingapore\b"},
-{"tag":"日本|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":5,"providers": ["link1"],"include":"(?i)🇯🇵|日本|\bJP\b|\bJapan\b"},
-{"tag":"美国|最低延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"200s","tolerance":5,"providers": ["link1"],"include":"(?i)🇺🇸|美国|\bUS\b|\bUSA\b|\bUnited\\s?States\b"},
+{"tag":"香港|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"30m","include":"(?i)🇭🇰|香港|\bHK\b|\bhong\\s?kong\b"},
+{"tag":"台湾|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"30m","include":"(?i)🇹🇼|台湾|\bTW\b|\bTaiwan\b"},
+{"tag":"新加坡|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers":  ["link2"],"idle_timeout":"30m","include":"(?i)🇸🇬|新加坡|\bSG\b|\bSingapore\b"},
+{"tag":"日本|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"30m","include":"(?i)🇯🇵|日本|\bJP\b|\bJapan\b"},
+{"tag":"美国|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers":  ["link2"],"idle_timeout":"30m","include":"(?i)🇺🇸|美国|\bUS\b|\bUSA\b|\bUnited\\s?States\b"},
+{"tag":"备用|最低延迟","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers":  ["link3"],"idle_timeout":"30m"},      
+   
+{"tag":"AI|香港延迟","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1","link2"],"idle_timeout":"20m","include":"(?i)(\\[GPT\\].*(🇭🇰|香港|\bHK\b|\bhong\\s?kong\b)|(🇭🇰|香港|\bHK\b|\bhong\\s?kong\b).*\\[GPT\\])"},
+{"tag":"AI|台湾延迟","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1","link2"],"idle_timeout":"20m","include":"(?i)(\\[GPT\\].*(🇹🇼|台湾|\bTW\b|\bTaiwan\b)|(🇹🇼|台湾|\bTW\b|\bTaiwan\b).*\\[GPT\\])"},
+{"tag":"AI|新加坡延迟","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1","link2"],"idle_timeout":"20m","include":"(?i)(\\[GPT\\].*(🇸🇬|新加坡|\bSG\b|\bSingapore\b)|(🇸🇬|新加坡|\bSG\b|\bSingapore\b).*\\[GPT\\])"},
+{"tag":"AI|日本延迟","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1","link2"],"idle_timeout":"20m","include":"(?i)(\\[GPT\\].*(🇯🇵|日本|\bJP\b|\bJapan\b)|(🇯🇵|日本|\bJP\b|\bJapan\b).*\\[GPT\\])"},
+{"tag":"AI|美国延迟","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1","link2"],"idle_timeout":"20m","include":"(?i)(\\[GPT\\].*(🇺🇸|美国|\\bUS\\b|\\bUSA\\b|\\bUnited\\s?States\\b)|(🇺🇸|美国|\\bUS\\b|\\bUSA\\b|\\bUnited\\s?States\\b).*\\[GPT\\])"},
 
-{"tag":"香港|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2","link3"],"idle_timeout":"10m","include":"(?i)🇭🇰|香港|\bHK\b|\bhong\\s?kong\b"},
-{"tag":"台湾|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2","link3"],"idle_timeout":"10m","include":"(?i)🇹🇼|台湾|\bTW\b|\bTaiwan\b"},
-{"tag":"新加坡|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers":  ["link2","link3"],"idle_timeout":"10m","include":"(?i)🇸🇬|新加坡|\bSG\b|\bSingapore\b"},
-{"tag":"日本|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2","link3"],"idle_timeout":"10m","include":"(?i)🇯🇵|日本|\bJP\b|\bJapan\b"},
-{"tag":"美国|最低延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers":  ["link2","link3"],"idle_timeout":"10m","include":"(?i)🇺🇸|美国|\bUS\b|\bUSA\b|\bUnited\\s?States\b"},
-
-{"tag":"AI|香港延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1"],"include":"(?i)(\\[GPT\\].*(🇭🇰|香港|\bHK\b|\bhong\\s?kong\b)|(🇭🇰|香港|\bHK\b|\bhong\\s?kong\b).*\\[GPT\\])"},
-{"tag":"AI|台湾延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1"],"include":"(?i)(\\[GPT\\].*(🇹🇼|台湾|\bTW\b|\bTaiwan\b)|(🇹🇼|台湾|\bTW\b|\bTaiwan\b).*\\[GPT\\])"},
-{"tag":"AI|新加坡延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1"],"include":"(?i)(\\[GPT\\].*(🇸🇬|新加坡|\bSG\b|\bSingapore\b)|(🇸🇬|新加坡|\bSG\b|\bSingapore\b).*\\[GPT\\])"},
-{"tag":"AI|日本延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1"],"include":"(?i)(\\[GPT\\].*(🇯🇵|日本|\bJP\b|\bJapan\b)|(🇯🇵|日本|\bJP\b|\bJapan\b).*\\[GPT\\])"},
-{"tag":"AI|美国延迟¹","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"300s","tolerance":50,"providers": ["link1"],"include":"(?i)(\\[GPT\\].*(🇺🇸|美国|\\bUS\\b|\\bUSA\\b|\\bUnited\\s?States\\b)|(🇺🇸|美国|\\bUS\\b|\\bUSA\\b|\\bUnited\\s?States\\b).*\\[GPT\\])"},
-
-{"tag":"AI|香港延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"10m","include":"(?i)(\\[GPT\\].*(🇭🇰|香港|\bHK\b|\bhong\\s?kong\b)|(🇭🇰|香港|\bHK\b|\bhong\\s?kong\b).*\\[GPT\\])"},
-{"tag":"AI|台湾延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"10m","include":"(?i)(\\[GPT\\].*(🇹🇼|台湾|\bTW\b|\bTaiwan\b)|(🇹🇼|台湾|\bTW\b|\bTaiwan\b).*\\[GPT\\])"},
-{"tag":"AI|新加坡延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"10m","include":"(?i)(\\[GPT\\].*(🇸🇬|新加坡|\bSG\b|\bSingapore\b)|(🇸🇬|新加坡|\bSG\b|\bSingapore\b).*\\[GPT\\])"},
-{"tag":"AI|日本延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"10m","include":"(?i)(\\[GPT\\].*(🇯🇵|日本|\bJP\b|\bJapan\b)|(🇯🇵|日本|\bJP\b|\bJapan\b).*\\[GPT\\])"},
-{"tag":"AI|美国延迟²","type":"urltest","outbounds":[],"url":"http://www.google.com/generate_204","interval":"600s","tolerance":50,"providers": ["link2"],"idle_timeout":"10m","include":"(?i)(\\[GPT\\].*(🇺🇸|美国|\\bUS\\b|\\bUSA\\b|\\bUnited\\s?States\\b)|(🇺🇸|美国|\\bUS\\b|\\bUSA\\b|\\bUnited\\s?States\\b).*\\[GPT\\])"},
 
 
 {"tag":"直连","type":"direct","domain_resolver":"directdns"},
-{"tag":"GLOBAL","type":"selector","outbounds":["默认代理","🐟 漏网之鱼","🤖 Ai","🐙 Github","⬇️ 下载相关","🎮 游戏平台","📺 Youtube","🇬 Google","☁️ Cloudflare",
-    "🪟 Microsoft","🎬 海外媒体","💬 社交平台","🍎 Apple","🛡️ Safe","🕸️ ARR","故转|最低延迟","🤖 机场AI-选择"
-    ,"香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²",
-    "AI|新加坡延迟¹","AI|美国延迟¹","AI|香港延迟¹","AI|台湾延迟¹","AI|日本延迟¹",
-    "AI|新加坡延迟²","AI|美国延迟²","AI|香港延迟²","AI|台湾延迟²","AI|日本延迟²","直连"]}
+{"tag":"GLOBAL","type":"selector","outbounds":["默认代理","故转|最低延迟","AI|故障转移","漏网之鱼","国外AI","GITHUB","下载相关","游戏平台","YOUTUBE","GOOGLE","CLOUDFLARE","MICROSOFT","TIKTOK","海外媒体","社交平台","APPLE","风控安全","ARR","台湾策略","日本策略","美国策略","香港策略","新加坡策略","香港|负载均衡¹","新加坡|负载均衡¹","香港|最低延迟¹","台湾|最低延迟¹","新加坡|最低延迟¹","日本|最低延迟¹","美国|最低延迟¹","香港|最低延迟²","台湾|最低延迟²","新加坡|最低延迟²","日本|最低延迟²","美国|最低延迟²","备用|最低延迟","AI|香港延迟","AI|台湾延迟","AI|新加坡延迟","AI|日本延迟","AI|美国延迟"]}
 
   ],
   "route": {
     "rules": [
-      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
+      { "rule_set": [ "telegram_ip","google_ip","apple_ip" ,"SocialMedia_ip"], "invert": true, "action": "sniff" },
+      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"},{"port": 1053}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "直连"},
       {"type":"logical","mode":"or","rules":[{"rule_set":["adblockfilters","adblockfilters2"]}],"action":"reject","no_drop":true},
       {"network": "icmp", "outbound": "直连"},
@@ -162,43 +168,44 @@
       {"rule_set": "other-direct", "outbound": "直连"},
       {"rule_set": "category-media-cn", "outbound": "直连"},
       {"rule_set": "category-games-cn", "outbound": "直连"},
-      
-      {"type":"logical","mode":"and","rules":[{"port":443},{"protocol":["quic"]}
-                                             ,{"type": "logical", "mode": "or", "rules": [{"ip_is_private": true}, {"rule_set": "cn_ip"}, {"rule_set": "cn"}]}
-                                             ],"action": "reject","no_drop":true},
-      {"rule_set": "docker", "outbound": "⬇️ 下载相关"},
-      {"rule_set": "download", "outbound": "⬇️ 下载相关"},
-      {"rule_set": "apple", "outbound": "🍎 Apple"}, 
-      {"rule_set": "ai", "outbound": "🤖 Ai"},
-      {"rule_set": "github", "outbound": "🐙 Github"},
-      {"rule_set": "steam", "outbound": "🎮 游戏平台"},
-      {"rule_set": "games-global", "outbound": "🎮 游戏平台"},
-      {"rule_set": "youtube", "outbound": "📺 Youtube"},
-      {"rule_set": "google", "outbound": "🇬 Google"},
-      {"rule_set": "cloudflare", "outbound": "☁️ Cloudflare"},
-      {"rule_set": "microsoft", "outbound": "🪟 Microsoft"},
-      {"rule_set": "twitch", "outbound": "🎬 海外媒体"},
-      {"rule_set": "telegram", "outbound": "💬 社交平台"},
-      {"rule_set": "category-finance", "outbound": "🛡️ Safe"},
-      {"rule_set": "paypal", "outbound": "🛡️ Safe"},
-      {"rule_set": "stripe", "outbound": "🛡️ Safe"},
-      {"rule_set": "category-cryptocurrency", "outbound": "🛡️ Safe"},
-      {"rule_set": "reddit", "outbound": "🛡️ Safe"},
-      {"rule_set": "streaming", "outbound": "🎬 海外媒体"},
-      {"rule_set": "SocialMedia", "outbound": "💬 社交平台"},
-      {"rule_set": "arr", "outbound": "🕸️ ARR"},
+ 
+      {"type":"logical","mode":"and","rules":[{"type":"logical","mode":"or","rules":[{"network": "udp","port": [443,80]},{"protocol": ["quic"]}]},
+                                             {"type": "logical", "mode": "or", "rules": [{"ip_is_private": true}, {"rule_set": "cn_ip"}, {"rule_set": "cn"}],"invert": true}
+                                             ],"action": "reject","no_drop": true},
+      {"rule_set": "docker", "outbound": "下载相关"},
+      {"rule_set": "download", "outbound": "下载相关"},
+      {"rule_set": "apple", "outbound": "APPLE"}, 
+      {"rule_set": "ai", "outbound": "国外AI"},
+      {"rule_set": "github", "outbound": "GITHUB"},
+      {"rule_set": "steam", "outbound": "游戏平台"},
+      {"rule_set": "games-global", "outbound": "游戏平台"},
+      {"rule_set": "youtube", "outbound": "YOUTUBE"},
+      {"rule_set": "google", "outbound": "GOOGLE"},
+      {"rule_set": "cloudflare", "outbound": "CLOUDFLARE"},
+      {"rule_set": "microsoft", "outbound": "MICROSOFT"},
+      {"rule_set": "twitch", "outbound": "海外媒体"},
+      {"rule_set": "telegram", "outbound": "社交平台"},
+      {"rule_set": "tiktok", "outbound": "TIKTOK"},
+      {"rule_set": "category-finance", "outbound": "风控安全"},
+      {"rule_set": "paypal", "outbound": "风控安全"},
+      {"rule_set": "stripe", "outbound": "风控安全"},
+      {"rule_set": "category-cryptocurrency", "outbound": "风控安全"},
+      {"rule_set": "reddit", "outbound": "风控安全"},
+      {"rule_set": "streaming", "outbound": "海外媒体"},
+      {"rule_set": "SocialMedia", "outbound": "社交平台"},
+      {"rule_set": "arr", "outbound": "ARR"},
       {"rule_set": "other-proxy", "outbound": "默认代理"}, 
 
-      {"rule_set": "apple_ip", "outbound": "🍎 Apple"},
-      {"rule_set": "google_ip", "outbound": "🇬 Google"},
-      {"rule_set": "SocialMedia_ip", "outbound": "💬 社交平台"},
-      {"rule_set": "streaming_ip", "outbound": "🎬 海外媒体"},
+      {"rule_set": "apple_ip", "outbound": "APPLE"},
+      {"rule_set": "google_ip", "outbound": "GOOGLE"},
+      {"rule_set": "SocialMedia_ip", "outbound": "社交平台"},
+      {"rule_set": "streaming_ip", "outbound": "海外媒体"},
 
       {"rule_set": "xptv_ip", "outbound": "直连"},
       {"rule_set": "bilibili_ip", "outbound": "直连"},
-      {"rule_set": "telegram_ip", "outbound": "💬 社交平台"},
-      {"rule_set": "ai_ip", "outbound": "🤖 Ai"},
-      {"rule_set": "cloudflare_ip", "outbound": "☁️ Cloudflare"},
+      {"rule_set": "telegram_ip", "outbound": "社交平台"},
+      {"rule_set": "ai_ip", "outbound": "国外AI"},
+      {"rule_set": "cloudflare_ip", "outbound": "CLOUDFLARE"},
       {"rule_set": "proxy", "outbound": "默认代理"},
       {"rule_set": "gfw", "outbound": "默认代理"},
       {"rule_set": "cn", "outbound": "直连"},
@@ -245,6 +252,7 @@
 {"tag": "reddit", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/reddit.srs", "http_client": "rule-download", "update_interval": "10d"},
 {"tag": "docker", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/docker.srs", "http_client": "rule-download", "update_interval": "10d"},
 {"tag": "twitch", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/twitch.srs", "http_client": "rule-download", "update_interval": "10d"},
+{"tag": "tiktok", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/tiktok.srs", "http_client": "rule-download", "update_interval": "10d"},
 {"tag": "streaming", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/domain/Streaming.srs", "http_client": "rule-download", "update_interval": "10d"},
 {"tag": "SocialMedia", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/domain/SocialMedia.srs", "http_client": "rule-download", "update_interval": "10d"},
 {"tag": "SocialMedia_ip", "type": "remote", "format": "binary", "url": "https://ghproxy.net/https://raw.githubusercontent.com/666OS/rules/refs/heads/release/singbox/ip/SocialMedia.srs", "http_client": "rule-download", "update_interval": "10d"},
@@ -274,16 +282,16 @@
 
 
     ],
-    "final": "🐟 漏网之鱼",
+    "final": "漏网之鱼",
     "auto_detect_interface": true,
-    "default_domain_resolver": {"server": "proxydns"}
+    "default_domain_resolver":"proxydns"
   },
   "inbounds": [
     {
       "tag": "dns-in",
       "type": "direct",
       "listen": "::",
-      "listen_port": 53
+      "listen_port": 1053
     },
     {
       "tag": "mixed-in",
@@ -302,6 +310,21 @@
       "type": "tproxy",
       "listen": "::",
       "listen_port": 7893
+    },
+    {
+      "tag": "tun-in",
+      "type": "tun",
+      "interface_name": "sing-box-tun",
+      "address": [
+        "172.31.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "route_exclude_address": [
+        "192.168.0.0/16",
+        "fe80::/10"
+      ],
+      "auto_route": true,
+      "auto_redirect": true
     }
 
   ],
@@ -315,9 +338,10 @@
       "external_controller": "[::]:9090",
       "external_ui": "ui",
       "external_ui_download_url": "https://ghproxy.net/https://github.com/Zephyruso/zashboard/releases/download/v3.21.0/dist-cdn-fonts.zip",
-      "external_ui_http_client": "直连",
+      "external_ui_download_detour": "直连",
       "secret": "123.0321",
       "default_mode": "Rule"
+        
     }
   },
 
